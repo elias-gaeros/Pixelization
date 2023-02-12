@@ -29,6 +29,9 @@ Download the dataset. Create two empty directories ./datasets/TRAIN_DATA/trainA 
 
 Put non-pixel art images in ./datasets/TRAIN_DATA/trainA and put multi-cell pixel arts in ./datasets/TRAIN_DATA/trainB.
 
+Run the following command first:
+`python -m visdom.server`
+
 Run the following command to train:
 
 `python train.py --gpu_ids 0 --batch_size 2 --preprocess none --dataroot ./datasets/TRAIN_DATA/ --name YOUR_MODEL_NAME`
