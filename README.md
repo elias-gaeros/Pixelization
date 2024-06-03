@@ -25,8 +25,8 @@ See user testing feedback at https://twitter.com/santarh/status/1601251477355663
 ## Prerequisites
 - Linux
 - Python 3
-- NVIDIA GPU + CUDA CuDNN
-- pytorch >= 1.7.1 and torchvision >= 0.8.2
+- NVIDIA GPU + CUDA CuDNN + 20GB GPU RAM
+- CUDA 11.6 + cuDnn
 
 ## Dataset
 The dataset is available at https://drive.google.com/file/d/1YAjcz6lScm-Gd2C5gj3iwZOhG5092fRo/view?usp=sharing.
@@ -64,6 +64,9 @@ Run the following command to test:
 
 `--cell_size` could be any integer number.
 
+## Env
+Use Anaconda3 to add the env `CondaEnv_CUDA11.6.yaml`
+
 ## Train
 Create empty directory ./checkpoints/YOUR_MODEL_NAME
 
@@ -74,6 +77,8 @@ Put 160_net_G_A.pth and 160_net_G_B.pth in ./checkpoints/YOUR_MODEL_NAME
 Download the dataset. Create two empty directories ./datasets/TRAIN_DATA/trainA and ./datasets/TRAIN_DATA/trainB.
 
 Put non-pixel art images in ./datasets/TRAIN_DATA/trainA and put multi-cell pixel arts in ./datasets/TRAIN_DATA/trainB.
+
+Run `python -m visdom.server` first.
 
 Run the following command to train:
 
@@ -92,11 +97,17 @@ Create empty directory ./dataset/TEST_DATA/Input.
 
 Put test images in ./dataset/TEST_DATA/Input, and run `python prepare_data.py` to prepare data.
 
+Run `python -m visdom.server` first.
+
 Run the following command to test:
 
 `python test.py --gpu_ids 0 --batch_size 1 --preprocess none --num_test 4 --epoch WHICH_EPOCH --dataroot ./datasets/TEST_DATA/ --name YOUR_MODEL_NAME`
 
 The result will be saved in ./result/YOUR_MODEL_NAME.
+
+To use the pre-trained model, put `160_net_G_A.pth` and `160_net_G_B.pth` into `checkpoints\YOUR_MODEL_NAME`, then run:
+
+``python test.py --gpu_ids 0 --batch_size 1 --preprocess none --num_test 4 --epoch 160 --dataroot ./datasets/TEST_DATA/ --name YOUR_MODEL_NAME``
 
 ## License
 Software Copyright License for non-commercial scientific research purposes. Please read carefully the [terms and conditions](https://github.com/WuZongWei6/Pixelization/blob/main/LICENSE.md) in the LICENSE file and any accompanying documentation before you download and/or use the Pixel Art and/or Non-pixel art dataset, model and software, (the "Data & Software"), including code, images, videos, textures, software, scripts, and animations. By downloading and/or using the Data & Software (including downloading, cloning, installing, and any other use of the corresponding github repository), you acknowledge that you have read these terms and conditions, understand them, and agree to be bound by them. If you do not agree with these terms and conditions, you must not download and/or use the Data & Software. Any infringement of the terms of this agreement will automatically terminate your rights under this [License](https://github.com/WuZongWei6/Pixelization/blob/main/LICENSE.md).
