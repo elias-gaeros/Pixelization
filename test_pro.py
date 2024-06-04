@@ -87,8 +87,8 @@ class Model():
         self.model_name = model_name
     def load(self):
         with torch.no_grad():
-            self.G_A_net = define_G(3, 3, 64, "c2pGen", "normal", 0.02, [])
-            self.alias_net = define_G(3, 3, 64, "antialias", "normal", 0.02, [])
+            self.G_A_net = define_G(3, 3, 64, "c2pGen", "normal", 0.02, [], init=False)
+            self.alias_net = define_G(3, 3, 64, "antialias", "normal", 0.02, [], init=False)
             self.alias_net.to(self.device)
             self.G_A_net.to(self.device)
 

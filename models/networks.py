@@ -1,14 +1,12 @@
 import torch
 import torch.nn as nn
 from torch.nn import init
+import safetensors.torch as st
 import functools
-import numpy as np
-import scipy.stats as st
 from torch.optim import lr_scheduler
 from .c2pGen import *
 from .p2cGen import *
 from .c2pDis import *
-import torchvision
 
 
 class Identity(nn.Module):
@@ -94,15 +92,13 @@ def init_weights(net, init_type='normal', init_gain=0.02):
             init.constant_(m.bias.data, 0.0)
 
     print('initialize network with %s' % init_type)
-    net.apply(init_func)  # apply the initialization function <init_func>
+    return net.apply(init_func)  # apply the initialization function <init_func>
 
 
-def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
-    """Initialize a network: 1. register CPU/GPU device (with multi-GPU support); 2. initialize the network weights
+def to_device(net, gpu_ids=[]):
+    """register CPU/GPU device (with multi-GPU support)
     Parameters:
         net (network)      -- the network to be initialized
-        init_type (str)    -- the name of an initialization method: normal | xavier | kaiming | orthogonal
-        gain (float)       -- scaling factor for normal, xavier and orthogonal.
         gpu_ids (int list) -- which GPUs the network runs on: e.g., 0,1,2
 
     Return an initialized network.
@@ -110,15 +106,15 @@ def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
     if len(gpu_ids) > 1:
         assert(torch.cuda.is_available())
         net.to(gpu_ids[0])
-        net = torch.nn.DataParallel(net, gpu_ids)  # multi-GPUs
+        return torch.nn.DataParallel(net, gpu_ids)  # multi-GPUs
     elif len(gpu_ids) == 1:
         assert(torch.cuda.is_available())
-        net.to(torch.device(gpu_ids[0]))
-    init_weights(net, init_type, init_gain=init_gain)
-    return net
+        return net.to(torch.device(gpu_ids[0]))
+    else:
+        return net
 
 
-def define_G(input_nc, output_nc, ngf, netG, init_type='normal', init_gain=0.02, gpu_ids=[]):
+def define_G(input_nc, output_nc, ngf, netG, init_type='normal', init_gain=0.02, gpu_ids=[], init=True):
     """Create a generator
 
     Parameters:
@@ -143,7 +139,22 @@ def define_G(input_nc, output_nc, ngf, netG, init_type='normal', init_gain=0.02,
         net = AliasNet(input_nc, output_nc, ngf, 2, 3, activ='relu', pad_type='reflect')
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
-    return init_net(net, init_type, init_gain, gpu_ids)
+
+    net = to_device(net, gpu_ids)
+
+    if init:
+        net = init_weights(net, init_type, init_gain=init_gain)
+        if netG == 'c2pGen':
+            features = net.PBEnc.vgg
+            device = str(next(features.parameters()).device)
+            state_dict = st.load_file('./pixelart_vgg19.safetensors', device=str(device))
+            features.load_state_dict({
+                k.removeprefix('features.'): v
+                for k, v in state_dict.items()
+                if k.startswith('features.')
+            })
+
+    return net
 
 
 
@@ -167,7 +178,9 @@ def define_D(netD, init_type='normal', init_gain=0.02, gpu_ids=[]):
         net = CPDis_cls(image_size=256, conv_dim=64, repeat_num=3, norm='SN')
     else:
         raise NotImplementedError('Discriminator model name [%s] is not recognized' % netD)
-    return init_net(net, init_type, init_gain, gpu_ids)
+    net = to_device(net, gpu_ids)
+    net = init_weights(net, init_type, init_gain=init_gain)
+    return net
 
 
 class GANLoss(nn.Module):

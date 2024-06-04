@@ -119,18 +119,9 @@ class C2PGen(nn.Module):
 class PixelBlockEncoder(nn.Module):
     def __init__(self, input_dim, dim, style_dim, norm, activ, pad_type):
         super(PixelBlockEncoder, self).__init__()
-        vgg19 = models.vgg.vgg19(pretrained=False)
-        vgg19.classifier._modules['6'] = nn.Linear(4096, 7, bias=True)
-        vgg19.load_state_dict(torch.load('./pixelart_vgg19.pth'))
-        self.vgg = vgg19.features
-        for p in self.vgg.parameters():
+        self.vgg = features = models.vgg.make_layers(models.vgg.cfgs["E"], batch_norm=False)
+        for p in features.parameters():
             p.requires_grad = False
-        # vgg19 = models.vgg.vgg19(pretrained=False)
-        # vgg19.load_state_dict(torch.load('./vgg.pth'))
-        # self.vgg = vgg19.features
-        # for p in self.vgg.parameters():
-        #     p.requires_grad = False
-
 
         self.conv1 = ConvBlock(input_dim, dim, 7, 1, 3, norm=norm, activation=activ, pad_type=pad_type)  # 3->64,concat
         dim = dim * 2

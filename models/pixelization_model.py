@@ -55,12 +55,13 @@ class PixelizationModel(BaseModel):
             self.model_names = ['G_A', 'G_B']
 
         # define networks (both Generators and discriminators)
+        do_init = self.isTrain and not opt.continue_train
         self.netG_A = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG_A,
-                                        opt.init_type, opt.init_gain, self.gpu_ids)
+                                        opt.init_type, opt.init_gain, self.gpu_ids, init=do_init)
         self.netG_B = networks.define_G(opt.output_nc, opt.input_nc, opt.ngf, opt.netG_B,
-                                        opt.init_type, opt.init_gain, self.gpu_ids)
+                                        opt.init_type, opt.init_gain, self.gpu_ids, init=do_init)
         self.alias_net = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, "antialias",
-                                           opt.init_type, opt.init_gain, self.gpu_ids)
+                                           opt.init_type, opt.init_gain, self.gpu_ids, init=False)
 
 
 
