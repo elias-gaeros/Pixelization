@@ -86,21 +86,19 @@ class Model():
         self.model_name = model_name
     def load(self):
         with torch.no_grad():
-            self.G_A_net = define_G(3, 3, 64, "c2pGen", "instance", False, "normal", 0.02, [0])
-            self.alias_net = define_G(3, 3, 64, "antialias", "instance", False, "normal", 0.02, [0])
+            self.G_A_net = define_G(3, 3, 64, "c2pGen", "instance", False, "normal", 0.02, [])
+            self.alias_net = define_G(3, 3, 64, "antialias", "instance", False, "normal", 0.02, [])
+            self.alias_net.to(self.device)
+            self.G_A_net.to(self.device)
 
             G_A_state = torch.load("./checkpoints/{}/160_net_G_A.pth".format(self.model_name), map_location=str(self.device))
-            for p in list(G_A_state.keys()):
-                G_A_state["module."+str(p)] = G_A_state.pop(p)
             self.G_A_net.load_state_dict(G_A_state)
 
             alias_state = torch.load("./alias_net.pth", map_location=str(self.device))
-            for p in list(alias_state.keys()):
-                alias_state["module."+str(p)] = alias_state.pop(p)
             self.alias_net.load_state_dict(alias_state)
 
             code = torch.tensor(MLP_code, device=self.device).reshape((1, 256, 1, 1))
-            self.cell_size_code = self.G_A_net.module.MLP(code)
+            self.cell_size_code = self.G_A_net.MLP(code)
 
     def pixelize(self, in_img, out_img, cell_size):
         with torch.no_grad():
@@ -113,8 +111,8 @@ class Model():
                                Image.BICUBIC)
             in_t = process(in_img).to(self.device)
 
-            feature = self.G_A_net.module.RGBEnc(in_t)
-            images = self.G_A_net.module.RGBDec(feature, self.cell_size_code)
+            feature = self.G_A_net.RGBEnc(in_t)
+            images = self.G_A_net.RGBDec(feature, self.cell_size_code)
             out_t = self.alias_net(images)
             save(out_t, out_img, cell_size, best_cell_size)
 
