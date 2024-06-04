@@ -118,7 +118,7 @@ def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
     return net
 
 
-def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, gpu_ids=[]):
+def define_G(input_nc, output_nc, ngf, netG, init_type='normal', init_gain=0.02, gpu_ids=[]):
     """Create a generator
 
     Parameters:
@@ -126,8 +126,6 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         output_nc (int) -- the number of channels in output images
         ngf (int) -- the number of filters in the last conv layer
         netG (str) -- the architecture's name: resnet_9blocks | resnet_6blocks | unet_256 | unet_128
-        norm (str) -- the name of normalization layers used in the network: batch | instance | none
-        use_dropout (bool) -- if use dropout layers.
         init_type (str)    -- the name of our initialization method.
         init_gain (float)  -- scaling factor for normal, xavier and orthogonal.
         gpu_ids (int list) -- which GPUs the network runs on: e.g., 0,1,2
@@ -135,7 +133,6 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
     Returns a generator
     """
     net = None
-    norm_layer = get_norm_layer(norm_type=norm)
 
     if netG == 'c2pGen':  #                     style_dim  mlp_dim
         net = C2PGen(input_nc, output_nc, ngf, 2, 4, 256, 256, activ='relu', pad_type='reflect')
@@ -150,15 +147,11 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
 
 
 
-def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal', init_gain=0.02, gpu_ids=[]):
+def define_D(netD, init_type='normal', init_gain=0.02, gpu_ids=[]):
     """Create a discriminator
 
     Parameters:
-        input_nc (int)     -- the number of channels in input images
-        ndf (int)          -- the number of filters in the first conv layer
         netD (str)         -- the architecture's name: basic | n_layers | pixel
-        n_layers_D (int)   -- the number of conv layers in the discriminator; effective when netD=='n_layers'
-        norm (str)         -- the type of normalization layers used in the network.
         init_type (str)    -- the name of the initialization method.
         init_gain (float)  -- scaling factor for normal, xavier and orthogonal.
         gpu_ids (int list) -- which GPUs the network runs on: e.g., 0,1,2
@@ -166,7 +159,6 @@ def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal'
     Returns a discriminator
     """
     net = None
-    norm_layer = get_norm_layer(norm_type=norm)
 
 
     if netD == 'CPDis':

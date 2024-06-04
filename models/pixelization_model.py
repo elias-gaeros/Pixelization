@@ -55,21 +55,19 @@ class PixelizationModel(BaseModel):
             self.model_names = ['G_A', 'G_B']
 
         # define networks (both Generators and discriminators)
-        self.netG_A = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG_A, opt.norm,
-                                        not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
-        self.netG_B = networks.define_G(opt.output_nc, opt.input_nc, opt.ngf, opt.netG_B, opt.norm,
-                                        not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
-        self.alias_net = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, "antialias", opt.norm,
-                                           not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
+        self.netG_A = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG_A,
+                                        opt.init_type, opt.init_gain, self.gpu_ids)
+        self.netG_B = networks.define_G(opt.output_nc, opt.input_nc, opt.ngf, opt.netG_B,
+                                        opt.init_type, opt.init_gain, self.gpu_ids)
+        self.alias_net = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, "antialias",
+                                           opt.init_type, opt.init_gain, self.gpu_ids)
 
 
 
 
         if self.isTrain:  # define discriminators
-            self.netD_A = networks.define_D(opt.output_nc, opt.ndf, 'CPDis_cls',
-                                            opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
-            self.netD_B = networks.define_D(opt.input_nc, opt.ndf, opt.netD,
-                                            opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
+            self.netD_A = networks.define_D('CPDis_cls', opt.init_type, opt.init_gain, self.gpu_ids)
+            self.netD_B = networks.define_D(opt.netD, opt.init_type, opt.init_gain, self.gpu_ids)
 
         if self.isTrain:
             if opt.lambda_identity > 0.0:  # only works when input and output images have the same number of channels
