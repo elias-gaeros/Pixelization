@@ -1,5 +1,6 @@
 
 import torch
+import safetensors.torch as st
 import torchvision.transforms as transforms
 from PIL import Image
 import numpy as np
@@ -91,7 +92,7 @@ class Model():
             self.alias_net.to(self.device)
             self.G_A_net.to(self.device)
 
-            G_A_state = torch.load("./checkpoints/{}/160_net_G_A.pth".format(self.model_name), map_location=str(self.device))
+            G_A_state = st.load_file("./checkpoints/{}/160_net_G_A.safetensors".format(self.model_name), device=str(self.device))
             self.G_A_net.load_state_dict(G_A_state)
 
             alias_state = torch.load("./alias_net.pth", map_location=str(self.device))
