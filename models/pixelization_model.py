@@ -1,9 +1,9 @@
 import torch
+import safetensors.torch as st
 import itertools
 from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
-import os
 
 import torch.nn.functional as F
 
@@ -96,8 +96,8 @@ class PixelizationModel(BaseModel):
             self.optimizers.append(self.optimizer_D_cls)
         # Load parameters
         print('--------Load AliasNet--------')
-        load_path = './alias_net.pth'
-        state_dict = torch.load(load_path)
+        load_path = './alias_net.safetensors'
+        state_dict = st.load_file(load_path, device=str(self.device))
         if hasattr(self.alias_net, 'module'):
             for p in list(state_dict.keys()):
                 state_dict["module."+str(p)] = state_dict.pop(p)

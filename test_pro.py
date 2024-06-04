@@ -95,7 +95,7 @@ class Model():
             G_A_state = st.load_file("./checkpoints/{}/160_net_G_A.safetensors".format(self.model_name), device=str(self.device))
             self.G_A_net.load_state_dict(G_A_state)
 
-            alias_state = torch.load("./alias_net.pth", map_location=str(self.device))
+            alias_state = st.load_file("./alias_net.safetensors", device=str(self.device))
             self.alias_net.load_state_dict(alias_state)
 
             code = torch.tensor(MLP_code, device=self.device).reshape((1, 256, 1, 1))
