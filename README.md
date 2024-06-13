@@ -2,10 +2,25 @@
 <img src=./teaser.jpg />
 
 ## Description
-This is the official implementation of the SIGGRAPH Asia 2022 paper "Make Your Own Sprites: Aliasing-Aware and Cell-Controllable Pixelization". Paper can be found [here](https://dl.acm.org/doi/pdf/10.1145/3550454.3555482) or downloaded from [here](https://orca.cardiff.ac.uk/id/eprint/152816/).
 
-## ⭐⭐⭐Newest Update⭐⭐⭐
-`Test Pro`: We launch a new pixelization method based on original repository, which can produce pixelization result from 2× to N× (N could be any integer number). Please refer to the `Test Pro` section below.👾👾
+A CycleGAN model for pixelating clip-art images. This forks simplifies the inference code and uses safetensors model files instead of the original .pth found on authors' gDrive.
+
+This is based on the [official implementation](https://github.com/WuZongWei6/Pixelization) of the SIGGRAPH Asia 2022 paper "Make Your Own Sprites: Aliasing-Aware and Cell-Controllable Pixelization". Paper can be found [here](https://dl.acm.org/doi/pdf/10.1145/3550454.3555482) or downloaded from [here](https://orca.cardiff.ac.uk/id/eprint/152816/).
+
+
+## Usage
+
+**requirements**: Python 3.6, pytorch, pillow, safetensors, huggingface_hub, tqdm
+
+```bash
+python -c4 pixelate.py my-image.webp
+```
+
+Will pixelate `my-image.webp` with a cell_size of 4 and output `my-image_pixelated.png` in the same folder.
+
+The cell size is specified with`-c`, `-c4` implies that the image `examples/4_1.png` will loaded and encoded features that serve as a reference for the cell size.
+
+For comparisons, use `-n` to round-trip the image through resizes without applying the model.
 
 ## Some Results
 <img src=./results/9562.png />
@@ -40,74 +55,6 @@ The dataset is available at https://drive.google.com/file/d/1YAjcz6lScm-Gd2C5gj3
 |[P2INet](https://drive.google.com/file/d/1z9SmQRPoIuBT_18mzclEd1adnFn2t78T/view?usp=sharing) | P2INet.
 
 Please read the License before use. Unauthorized commercial use is prohibited.
-
-My email is in my profile.
-
-使用前请阅读License,禁止未经授权的商业使用
-
-## Test Pro
-Create empty directory ./checkpoints/YOUR_MODEL_NAME
-
-Put alias_net.pth and pixelart_vgg19.pth in ./ 
-
-Put 160_net_G_A.pth and 160_net_G_B.pth in ./checkpoints/YOUR_MODEL_NAME 
-
-Create empty directory ./dataset/TEST_DATA/Input
-
-Put test images in ./dataset/TEST_DATA/Input
-
-Run the following command to test:
-
-`python test_pro.py --input ./datasets/TEST_DATA/Input --cell_size 4 --model_name YOUR_MODEL_NAME`
-
-`--input` could be a file or directory.
-
-`--cell_size` could be any integer number.
-
-## Env
-Use Anaconda3 to add the env `CondaEnv_CUDA11.6.yaml`
-
-## Train
-Create empty directory ./checkpoints/YOUR_MODEL_NAME
-
-Put alias_net.pth and pixelart_vgg19.pth in ./ 
-
-Put 160_net_G_A.pth and 160_net_G_B.pth in ./checkpoints/YOUR_MODEL_NAME 
-
-Download the dataset. Create two empty directories ./datasets/TRAIN_DATA/trainA and ./datasets/TRAIN_DATA/trainB.
-
-Put non-pixel art images in ./datasets/TRAIN_DATA/trainA and put multi-cell pixel arts in ./datasets/TRAIN_DATA/trainB.
-
-Run `python -m visdom.server` first.
-
-Run the following command to train:
-
-`python train.py --gpu_ids 0 --batch_size 2 --preprocess none --dataroot ./datasets/TRAIN_DATA/ --name YOUR_MODEL_NAME`
-
-The checkpoints and logs will be saved in ./checkpoints/YOUR_MODEL_NAME.
-
-## Test
-Create empty directory ./checkpoints/YOUR_MODEL_NAME
-
-Put alias_net.pth and pixelart_vgg19.pth in ./ 
-
-Put 160_net_G_A.pth and 160_net_G_B.pth in ./checkpoints/YOUR_MODEL_NAME 
-
-Create empty directory ./dataset/TEST_DATA/Input.
-
-Put test images in ./dataset/TEST_DATA/Input, and run `python prepare_data.py` to prepare data.
-
-Run `python -m visdom.server` first.
-
-Run the following command to test:
-
-`python test.py --gpu_ids 0 --batch_size 1 --preprocess none --num_test 4 --epoch WHICH_EPOCH --dataroot ./datasets/TEST_DATA/ --name YOUR_MODEL_NAME`
-
-The result will be saved in ./result/YOUR_MODEL_NAME.
-
-To use the pre-trained model, put `160_net_G_A.pth` and `160_net_G_B.pth` into `checkpoints\YOUR_MODEL_NAME`, then run:
-
-``python test.py --gpu_ids 0 --batch_size 1 --preprocess none --num_test 4 --epoch 160 --dataroot ./datasets/TEST_DATA/ --name YOUR_MODEL_NAME``
 
 ## License
 Software Copyright License for non-commercial scientific research purposes. Please read carefully the [terms and conditions](https://github.com/WuZongWei6/Pixelization/blob/main/LICENSE.md) in the LICENSE file and any accompanying documentation before you download and/or use the Pixel Art and/or Non-pixel art dataset, model and software, (the "Data & Software"), including code, images, videos, textures, software, scripts, and animations. By downloading and/or using the Data & Software (including downloading, cloning, installing, and any other use of the corresponding github repository), you acknowledge that you have read these terms and conditions, understand them, and agree to be bound by them. If you do not agree with these terms and conditions, you must not download and/or use the Data & Software. Any infringement of the terms of this agreement will automatically terminate your rights under this [License](https://github.com/WuZongWei6/Pixelization/blob/main/LICENSE.md).
