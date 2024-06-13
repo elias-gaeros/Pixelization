@@ -148,13 +148,20 @@ if __name__ == "__main__":
         action="store_true",
         help="do not upscale to the original resolution",
     )
+    parser.add_argument(
+        "-n",
+        "--no_model",
+        action="store_true",
+        help="do not apply the pixelization model, only do the resize round-trip",
+    )
     args = parser.parse_args()
     device = args.device
 
-    ref_img = load_img(
-        args.reference or f"./examples/{args.cell_size}_1.png", gray=True
-    )
-    c2p, aliasnet = load_models(device=device)
+    if not args.no_model:
+        ref_img = load_img(
+            args.reference or f"./examples/{args.cell_size}_1.png", gray=True
+        )
+        c2p, aliasnet = load_models(device=device)
     for input_path in tqdm(args.input):
         input_path = Path(input_path)
         output_dir = Path(args.output_dir) if args.output_dir else input_path.parent
@@ -167,9 +174,12 @@ if __name__ == "__main__":
             in_img = torch.nn.functional.interpolate(
                 in_img, scale_factor=args.pre_downscale, mode="bicubic"
             )
-        with torch.inference_mode():
-            res = c2p(in_img.to(device), ref_img.to(device))
-            res = aliasnet(res)
+        if args.no_model:
+            res = in_img
+        else:
+            with torch.inference_mode():
+                res = c2p(in_img.to(device), ref_img.to(device))
+                res = aliasnet(res)
 
         if args.downscale_method != "none":
             cell_size = args.cell_size
