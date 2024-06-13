@@ -71,7 +71,7 @@ def load_models(repository="gaeros/pixelization", device="cuda"):
 downscale_methods = {
     "linear": "bilinear",
     "cubic": "bicubic",
-    "nearest": "nearest_exact",
+    "nearest": "nearest-exact",
 }
 
 if __name__ == "__main__":
@@ -177,7 +177,7 @@ if __name__ == "__main__":
                 res,
                 scale_factor=1 / cell_size,
                 mode=downscale_methods[args.downscale_method],
-                align_corners=False,
+                align_corners=None if args.downscale_method == "nearest" else False,
                 antialias=False,
             )
             if not args.no_upscale:
