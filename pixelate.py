@@ -133,7 +133,7 @@ if __name__ == "__main__":
         "--pre_downscale",
         type=float,
         default=1.0,
-        help="1.0",
+        help="resizes the image before applying the model, values <1 downscale. Affects the cell size.",
     )
     parser.add_argument(
         "-m",
@@ -170,6 +170,7 @@ if __name__ == "__main__":
         )
 
         in_img = load_img(input_path)
+        in_size = in_img.shape[-2:]
         if args.pre_downscale != 1.0:
             in_img = torch.nn.functional.interpolate(
                 in_img, scale_factor=args.pre_downscale, mode="bicubic"
@@ -192,7 +193,7 @@ if __name__ == "__main__":
             )
             if not args.no_upscale:
                 res = torch.nn.functional.interpolate(
-                    res, scale_factor=cell_size, mode="nearest-exact"
+                    res, size=in_size, mode="nearest-exact"
                 )
 
         to_pil(res).save(output_path)
